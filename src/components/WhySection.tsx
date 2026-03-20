@@ -20,7 +20,7 @@ const reasons = [
   {
     icon: Cpu,
     title: "Vitesse Native",
-    desc: "En utilisant les ressources de votre processeur (WebAssembly), SwiftConvert traite vos fichiers à la vitesse de l'éclair, sans file d'attente.",
+    desc: "En utilisant les ressources de votre processeur (WebAssembly), DocuSûr traite vos fichiers à la vitesse de l'éclair, sans file d'attente.",
     badge: "WebAssembly",
   },
   {
@@ -55,7 +55,7 @@ export function WhySection() {
           Sécurité de niveau professionnel
         </div>
         <h2 className="text-balance font-display text-2xl font-bold text-foreground md:text-3xl" style={{ lineHeight: "1.12" }}>
-          Pourquoi SwiftConvert
+          Pourquoi DocuSûr
           <br />
           <span className="text-primary">est différent ?</span>
         </h2>
@@ -107,7 +107,7 @@ export function WhySection() {
         className="mt-10"
       >
         <h3 className="font-display text-lg font-bold text-foreground text-center mb-5">
-          SwiftConvert <span className="text-primary">vs</span> Outils Cloud
+          DocuSûr <span className="text-primary">vs</span> Outils Cloud
         </h3>
         <div className="glass-strong rounded-2xl overflow-hidden">
           <div className="grid grid-cols-3 gap-0">
@@ -116,7 +116,7 @@ export function WhySection() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Critère</p>
             </div>
             <div className="border-b border-border px-4 py-3 text-center">
-              <p className="text-xs font-bold text-primary uppercase tracking-wider">SwiftConvert</p>
+              <p className="text-xs font-bold text-primary uppercase tracking-wider">DocuSûr</p>
             </div>
             <div className="border-b border-border px-4 py-3 text-center">
               <div className="flex items-center justify-center gap-1">

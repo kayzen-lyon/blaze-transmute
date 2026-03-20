@@ -1,10 +1,11 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Zap, Shield, FileText } from "lucide-react";
+import { ArrowRight, Zap, Shield } from "lucide-react";
+import docusurLogo from "@/assets/docusur-logo.webp";
 
 export function Footer() {
   return (
     <footer className="mt-24 pb-12">
-      {/* About / Docusûr */}
+      {/* About */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -13,15 +14,13 @@ export function Footer() {
         className="glass rounded-2xl p-6 md:p-7 mb-6"
       >
         <div className="flex items-start gap-4">
-          <div className="flex-shrink-0 rounded-xl bg-primary/10 p-3">
-            <FileText className="h-5 w-5 text-primary" />
-          </div>
+          <img src={docusurLogo} alt="DocuSûr" className="h-12 w-auto flex-shrink-0" />
           <div>
             <h3 className="font-display text-base font-bold text-foreground mb-2">
-              À propos de SwiftConvert
+              À propos de DocuSûr
             </h3>
             <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
-              SwiftConvert regroupe le meilleur de nos technologies (incluant le moteur <span className="font-semibold text-foreground">Docusûr</span>) pour offrir aux entreprises lyonnaises un outil de productivité souverain. Conversion média, manipulation PDF, OCR intelligent — tout fonctionne sans serveur distant.
+              DocuSûr regroupe le meilleur de nos technologies pour offrir aux entreprises un outil de productivité souverain. Conversion média, manipulation PDF, OCR intelligent, signature électronique — tout fonctionne sans serveur distant, directement dans votre navigateur.
             </p>
           </div>
         </div>
@@ -44,7 +43,7 @@ export function Footer() {
           <span className="text-primary">aussi performant et sécurisé</span> que cet outil.
         </h3>
         <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground text-pretty leading-relaxed">
-          Besoin d'une solution sur-mesure pour automatiser vos processus PDF ? Nous concevons des applications web pour les entreprises qui ne transigent pas sur la performance et la sécurité des données.
+          Besoin d'une solution sur-mesure pour automatiser vos processus documentaires ? Nous concevons des applications web pour les entreprises qui ne transigent pas sur la performance et la sécurité des données.
         </p>
         <a
           href="https://www.kayzen-lyon.fr"
@@ -67,7 +66,7 @@ export function Footer() {
         className="mt-8 flex flex-col items-center gap-3 text-center"
       >
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <span>© {new Date().getFullYear()} SwiftConvert</span>
+          <span>© {new Date().getFullYear()} DocuSûr</span>
           <span className="text-border">·</span>
           <span>Un outil</span>
           <a
@@ -80,7 +79,7 @@ export function Footer() {
           </a>
         </div>
         <p className="text-[11px] text-muted-foreground/60">
-          Aucune donnée collectée · Aucun cookie · Moteur Docusûr intégré · 100% local
+          Aucune donnée collectée · Aucun cookie · Sécurité PDF Française · 100% local
         </p>
       </motion.div>
     </footer>
