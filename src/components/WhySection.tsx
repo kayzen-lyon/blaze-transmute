@@ -55,7 +55,7 @@ export function WhySection() {
           Sécurité de niveau professionnel
         </div>
         <h2 className="text-balance font-display text-2xl font-bold text-foreground md:text-3xl" style={{ lineHeight: "1.12" }}>
-          Pourquoi SwiftConvert
+          Pourquoi DocuSûr
           <br />
           <span className="text-primary">est différent ?</span>
         </h2>
