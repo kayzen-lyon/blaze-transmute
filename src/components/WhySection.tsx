@@ -20,7 +20,7 @@ const reasons = [
   {
     icon: Cpu,
     title: "Vitesse Native",
-    desc: "En utilisant les ressources de votre processeur (WebAssembly), SwiftConvert traite vos fichiers à la vitesse de l'éclair, sans file d'attente.",
+    desc: "En utilisant les ressources de votre processeur (WebAssembly), DocuSûr traite vos fichiers à la vitesse de l'éclair, sans file d'attente.",
     badge: "WebAssembly",
   },
   {
