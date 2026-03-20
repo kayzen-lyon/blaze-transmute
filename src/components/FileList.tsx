@@ -16,7 +16,6 @@ import {
   ConversionFormat,
   getFileCategory,
   getAvailableFormats,
-  convertFile,
 } from "@/lib/ffmpeg";
 
 export type FileStatus = "idle" | "converting" | "done" | "error";
@@ -44,6 +43,13 @@ const categoryIcons = {
   document: FileText,
 };
 
+const categoryColors: Record<string, string> = {
+  image: "bg-primary/10 text-primary",
+  audio: "bg-accent/10 text-accent",
+  video: "bg-kayzen-glow/10 text-kayzen-glow",
+  document: "bg-muted text-muted-foreground",
+};
+
 interface FileCardProps {
   item: ConvertibleFile;
   onRemove: (id: string) => void;
@@ -57,6 +63,7 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
   const Icon = categoryIcons[category];
   const formats = getAvailableFormats(category);
   const ext = item.file.name.split(".").pop()?.toUpperCase() || "";
+  const colorClass = categoryColors[category] || categoryColors.document;
 
   const handleDownload = () => {
     if (!item.result || !item.targetFormat) return;
@@ -76,12 +83,12 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
       animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-      className="group relative rounded-xl bg-surface-elevated border border-border p-4 transition-shadow duration-300 hover:shadow-md"
+      className="group glass-strong relative rounded-2xl p-4 transition-shadow duration-300 hover:shadow-lg"
     >
-      {/* Progress bar background */}
+      {/* Progress bar */}
       {item.status === "converting" && (
         <motion.div
-          className="absolute inset-0 rounded-xl bg-primary/5"
+          className="absolute inset-0 rounded-2xl bg-primary/5"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: item.progress / 100 }}
           style={{ transformOrigin: "left" }}
@@ -90,14 +97,12 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
       )}
 
       <div className="relative flex items-center gap-4">
-        {/* Icon */}
-        <div className="flex-shrink-0 rounded-lg bg-muted p-2.5">
-          <Icon className="h-5 w-5 text-muted-foreground" />
+        <div className={`flex-shrink-0 rounded-xl p-2.5 ${colorClass}`}>
+          <Icon className="h-5 w-5" />
         </div>
 
-        {/* File info */}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-foreground">
+          <p className="truncate text-sm font-semibold text-foreground">
             {item.file.name}
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
@@ -110,7 +115,7 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
           <button
             onClick={() => setShowFormats(!showFormats)}
             disabled={item.status === "converting" || item.status === "done"}
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground transition-colors hover:bg-muted disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-primary/30 disabled:opacity-50"
           >
             {item.targetFormat?.label || "Format"}
             <ChevronDown className="h-3 w-3" />
@@ -120,7 +125,7 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
             <motion.div
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
-              className="absolute right-0 top-full z-20 mt-1 w-32 rounded-lg border border-border bg-surface-elevated p-1 shadow-lg"
+              className="absolute right-0 top-full z-20 mt-1 w-36 glass-strong rounded-xl p-1.5 shadow-xl"
             >
               {formats.map((f) => (
                 <button
@@ -129,7 +134,7 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
                     onFormatChange(item.id, f);
                     setShowFormats(false);
                   }}
-                  className="w-full rounded-md px-3 py-1.5 text-left text-xs font-medium text-foreground transition-colors hover:bg-muted"
+                  className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-foreground transition-colors hover:bg-primary/10 hover:text-primary"
                 >
                   {f.label}
                 </button>
@@ -138,11 +143,11 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
           )}
         </div>
 
-        {/* Action button */}
+        {/* Actions */}
         {item.status === "idle" && item.targetFormat && (
           <button
             onClick={() => onConvert(item.id)}
-            className="rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground transition-transform active:scale-95"
+            className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-95"
           >
             Convertir
           </button>
@@ -151,7 +156,7 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
         {item.status === "converting" && (
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
-            <span className="text-xs font-mono text-muted-foreground">
+            <span className="text-xs font-mono font-semibold text-primary">
               {item.progress}%
             </span>
           </div>
@@ -160,7 +165,7 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
         {item.status === "done" && (
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-1.5 text-xs font-medium text-primary-foreground transition-transform active:scale-95"
+            className="flex items-center gap-1.5 rounded-xl bg-kayzen-green px-4 py-2 text-xs font-semibold text-accent-foreground transition-all hover:brightness-110 active:scale-95"
           >
             <Download className="h-3.5 w-3.5" />
             Télécharger
@@ -170,21 +175,19 @@ function FileCard({ item, onRemove, onFormatChange, onConvert }: FileCardProps) 
         {item.status === "error" && (
           <div className="flex items-center gap-1.5 text-destructive">
             <AlertCircle className="h-4 w-4" />
-            <span className="text-xs">Erreur</span>
+            <span className="text-xs font-semibold">Erreur</span>
           </div>
         )}
 
-        {/* Status indicator */}
         {item.status === "done" && (
-          <div className="rounded-full bg-primary/10 p-1">
-            <Check className="h-3.5 w-3.5 text-primary" />
+          <div className="rounded-full bg-kayzen-green/15 p-1.5">
+            <Check className="h-3.5 w-3.5 text-kayzen-green" />
           </div>
         )}
 
-        {/* Remove */}
         <button
           onClick={() => onRemove(item.id)}
-          className="rounded-md p-1 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
+          className="rounded-lg p-1.5 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive"
         >
           <X className="h-4 w-4" />
         </button>
@@ -227,17 +230,16 @@ export function FileList({ files, onRemove, onFormatChange, onConvert, onConvert
       transition={{ duration: 0.5, delay: 0.1 }}
       className="space-y-3"
     >
-      {/* Batch actions */}
       {files.length > 1 && (
         <div className="flex items-center justify-between px-1">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm font-medium text-muted-foreground">
             {files.length} fichier{files.length > 1 ? "s" : ""}
           </p>
           <div className="flex gap-2">
             {hasIdle && allHaveFormat && (
               <button
                 onClick={onConvertAll}
-                className="rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-transform active:scale-95"
+                className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-95"
               >
                 Tout convertir
               </button>
@@ -245,7 +247,7 @@ export function FileList({ files, onRemove, onFormatChange, onConvert, onConvert
             {allDone && (
               <button
                 onClick={handleDownloadAll}
-                className="flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-transform active:scale-95"
+                className="flex items-center gap-2 rounded-xl bg-kayzen-green px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-all hover:brightness-110 active:scale-95"
               >
                 <Download className="h-4 w-4" />
                 Tout télécharger
@@ -255,8 +257,7 @@ export function FileList({ files, onRemove, onFormatChange, onConvert, onConvert
         </div>
       )}
 
-      {/* File cards */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {files.map((item) => (
           <FileCard
             key={item.id}

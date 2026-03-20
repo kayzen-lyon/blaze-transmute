@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileIcon } from "lucide-react";
+import { Upload, FileIcon, Zap } from "lucide-react";
 
 interface DropZoneProps {
   onFilesAdded: (files: File[]) => void;
@@ -34,12 +34,12 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
       tabIndex={rootProps.tabIndex}
       role={rootProps.role}
       className={`
-        relative cursor-pointer rounded-2xl border-2 border-dashed p-12 md:p-16
-        transition-colors duration-300 ease-out overflow-hidden
+        relative cursor-pointer rounded-3xl border-2 border-dashed p-12 md:p-16
+        transition-all duration-300 ease-apple overflow-hidden
         ${
           isDragActive
-            ? "border-primary bg-dropzone-bg scale-[1.01]"
-            : "border-dropzone-border bg-card hover:border-primary/40 hover:bg-dropzone-bg/50"
+            ? "border-primary bg-dropzone-bg shadow-glow scale-[1.01]"
+            : "border-dropzone-border bg-card hover:border-primary/40 hover:bg-dropzone-bg/50 hover:shadow-lg"
         }
       `}
     >
@@ -55,10 +55,10 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
             transition={{ duration: 0.2 }}
             className="flex flex-col items-center gap-4"
           >
-            <div className="rounded-full bg-primary/10 p-5">
+            <div className="rounded-2xl bg-primary/10 p-5">
               <FileIcon className="h-8 w-8 text-primary" />
             </div>
-            <p className="text-lg font-medium text-primary">
+            <p className="font-display text-lg font-semibold text-primary">
               Déposez vos fichiers ici
             </p>
           </motion.div>
@@ -69,28 +69,32 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="flex flex-col items-center gap-4"
+            className="flex flex-col items-center gap-5"
           >
-            <div className="rounded-full bg-muted p-5">
-              <Upload className="h-8 w-8 text-muted-foreground" />
+            <div className="rounded-2xl bg-primary/10 p-5">
+              <Upload className="h-8 w-8 text-primary" />
             </div>
             <div className="text-center">
-              <p className="text-lg font-medium text-foreground">
+              <p className="font-display text-xl font-semibold text-foreground">
                 Glissez vos fichiers ici
               </p>
-              <p className="mt-1.5 text-sm text-muted-foreground">
+              <p className="mt-2 text-sm text-muted-foreground text-pretty">
                 ou cliquez pour parcourir · Images, Audio, Vidéo
               </p>
             </div>
-            <div className="flex flex-wrap justify-center gap-2 mt-2">
-              {["PNG", "JPG", "MP4", "MP3", "WebM", "WAV"].map((fmt) => (
+            <div className="flex flex-wrap justify-center gap-2 mt-1">
+              {["PNG", "JPG", "WebP", "MP4", "MP3", "WAV", "WebM"].map((fmt) => (
                 <span
                   key={fmt}
-                  className="rounded-md bg-muted px-2.5 py-1 text-xs font-mono text-muted-foreground"
+                  className="glass-subtle rounded-lg px-3 py-1 text-xs font-semibold text-muted-foreground"
                 >
                   {fmt}
                 </span>
               ))}
+            </div>
+            <div className="mt-1 flex items-center gap-1.5 text-xs text-primary/70">
+              <Zap className="h-3 w-3" fill="currentColor" />
+              <span>Conversion locale — aucun upload serveur</span>
             </div>
           </motion.div>
         )}
