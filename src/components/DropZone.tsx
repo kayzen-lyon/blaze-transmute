@@ -20,12 +20,19 @@ export function DropZone({ onFilesAdded }: DropZoneProps) {
     multiple: true,
   });
 
+  const rootProps = getRootProps();
+
   return (
     <motion.div
-      {...getRootProps()}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      onClick={rootProps.onClick}
+      onKeyDown={rootProps.onKeyDown}
+      onFocus={rootProps.onFocus}
+      onBlur={rootProps.onBlur}
+      tabIndex={rootProps.tabIndex}
+      role={rootProps.role}
       className={`
         relative cursor-pointer rounded-2xl border-2 border-dashed p-12 md:p-16
         transition-colors duration-300 ease-out overflow-hidden
