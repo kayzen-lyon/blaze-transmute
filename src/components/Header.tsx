@@ -111,7 +111,7 @@ export function Header({ onSelectTool }: HeaderProps) {
             rel="noopener noreferrer"
             className="ml-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            kayzen-lyon.fr
+            kayzen-web.fr
           </a>
 
           <button
