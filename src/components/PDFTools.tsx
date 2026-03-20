@@ -39,7 +39,7 @@ export function PDFTools({ pdfFiles, onClear, defaultAction }: PDFToolsProps) {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<Blob | Blob[] | string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showSignature, setShowSignature] = useState(false);
+  const [showSignature, setShowSignature] = useState(defaultAction === "sign");
   const [files, setFiles] = useState<PDFFile[]>(() =>
     pdfFiles.map((f) => ({ id: `pdf-${++pdfIdCounter}`, file: f }))
   );
