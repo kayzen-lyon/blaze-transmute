@@ -1,5 +1,5 @@
 import { useTheme } from "@/lib/use-theme";
-import { Moon, Sun, Zap } from "lucide-react";
+import { Moon, Sun, Zap, ShieldCheck } from "lucide-react";
 import { motion } from "framer-motion";
 
 export function Header() {
@@ -16,19 +16,31 @@ export function Header() {
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-glow">
           <Zap className="h-4.5 w-4.5 text-primary-foreground" fill="currentColor" />
         </div>
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-center gap-2">
           <span className="font-display text-xl font-bold tracking-tight text-foreground">
             SwiftConvert
           </span>
-          <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary">
+          <a
+            href="https://www.kayzen-lyon.fr"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary transition-colors hover:bg-primary/20"
+          >
             by Kayzen
+          </a>
+        </div>
+        {/* Zero-Server Badge */}
+        <div className="hidden items-center gap-1 rounded-full border border-kayzen-green/20 bg-kayzen-green/8 px-2.5 py-1 md:flex">
+          <ShieldCheck className="h-3 w-3 text-kayzen-green" />
+          <span className="text-[9px] font-bold uppercase tracking-wider text-kayzen-green">
+            Zero-Server Certifié
           </span>
         </div>
       </div>
 
       <div className="flex items-center gap-3">
         <a
-          href="https://kayzen-lyon.fr"
+          href="https://www.kayzen-lyon.fr"
           target="_blank"
           rel="noopener noreferrer"
           className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:block"

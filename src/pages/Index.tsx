@@ -1,18 +1,23 @@
 import { useState, useCallback, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { DropZone } from "@/components/DropZone";
 import { FileList, ConvertibleFile } from "@/components/FileList";
+import { PDFTools } from "@/components/PDFTools";
 import { SecurityStatus } from "@/components/SecurityStatus";
 import { WhySection } from "@/components/WhySection";
 import { Footer } from "@/components/Footer";
 import { ConversionFormat, convertFile } from "@/lib/ffmpeg";
-import { Shield, Zap, Globe } from "lucide-react";
+import { Shield, Zap, Globe, FileText, Image, Music } from "lucide-react";
 
 let fileIdCounter = 0;
 
+type AppMode = "idle" | "media" | "pdf";
+
 const Index = () => {
   const [files, setFiles] = useState<ConvertibleFile[]>([]);
+  const [pdfFiles, setPdfFiles] = useState<File[]>([]);
+  const [mode, setMode] = useState<AppMode>("idle");
   const [processingSpeed, setProcessingSpeed] = useState<number | null>(null);
   const conversionStartRef = useRef<number>(0);
   const fileSizeRef = useRef<number>(0);
@@ -20,20 +25,56 @@ const Index = () => {
   const isConverting = files.some((f) => f.status === "converting");
 
   const handleFilesAdded = useCallback((newFiles: File[]) => {
-    const items: ConvertibleFile[] = newFiles.map((file) => ({
-      id: `file-${++fileIdCounter}`,
-      file,
-      status: "idle" as const,
-      progress: 0,
-      targetFormat: null,
-      result: null,
-      error: null,
-    }));
-    setFiles((prev) => [...prev, ...items]);
+    const pdfs = newFiles.filter((f) => f.type === "application/pdf");
+    const media = newFiles.filter((f) => f.type !== "application/pdf");
+
+    if (pdfs.length > 0 && media.length === 0) {
+      // PDF mode
+      setPdfFiles((prev) => [...prev, ...pdfs]);
+      setMode("pdf");
+    } else if (media.length > 0) {
+      // Media mode
+      const items: ConvertibleFile[] = media.map((file) => ({
+        id: `file-${++fileIdCounter}`,
+        file,
+        status: "idle" as const,
+        progress: 0,
+        targetFormat: null,
+        result: null,
+        error: null,
+      }));
+      setFiles((prev) => [...prev, ...items]);
+      setMode("media");
+
+      // Also add any PDFs as media files
+      if (pdfs.length > 0) {
+        const pdfItems: ConvertibleFile[] = pdfs.map((file) => ({
+          id: `file-${++fileIdCounter}`,
+          file,
+          status: "idle" as const,
+          progress: 0,
+          targetFormat: null,
+          result: null,
+          error: null,
+        }));
+        setFiles((prev) => [...prev, ...pdfItems]);
+      }
+    }
+  }, []);
+
+  const handleClearAll = useCallback(() => {
+    setFiles([]);
+    setPdfFiles([]);
+    setMode("idle");
+    setProcessingSpeed(null);
   }, []);
 
   const handleRemove = useCallback((id: string) => {
-    setFiles((prev) => prev.filter((f) => f.id !== id));
+    setFiles((prev) => {
+      const next = prev.filter((f) => f.id !== id);
+      if (next.length === 0) setMode("idle");
+      return next;
+    });
   }, []);
 
   const handleFormatChange = useCallback((id: string, format: ConversionFormat) => {
@@ -62,8 +103,6 @@ const Index = () => {
         setFiles((prev) =>
           prev.map((f) => (f.id === id ? { ...f, progress } : f))
         );
-
-        // Calculate processing speed
         if (progress > 5 && progress < 100) {
           const elapsed = (performance.now() - conversionStartRef.current) / 1000;
           if (elapsed > 0.1) {
@@ -74,9 +113,7 @@ const Index = () => {
       });
 
       const elapsed = (performance.now() - conversionStartRef.current) / 1000;
-      if (elapsed > 0) {
-        setProcessingSpeed(fileSizeRef.current / elapsed);
-      }
+      if (elapsed > 0) setProcessingSpeed(fileSizeRef.current / elapsed);
 
       setFiles((prev) =>
         prev.map((f) =>
@@ -102,25 +139,24 @@ const Index = () => {
 
   const features = [
     {
+      icon: Image,
+      title: "Images & Média",
+      desc: "PNG, JPG, WebP, MP4, MP3, WAV — conversion instantanée via WebAssembly.",
+    },
+    {
+      icon: FileText,
+      title: "PDF Intelligent",
+      desc: "Fusionner, diviser, signer et OCR — moteur Docusûr intégré.",
+    },
+    {
       icon: Shield,
-      title: "100% Confidentiel",
-      desc: "Vos fichiers restent dans votre navigateur. Aucun envoi serveur.",
-    },
-    {
-      icon: Zap,
-      title: "Conversion Instantanée",
-      desc: "WebAssembly et Canvas API pour des résultats immédiats.",
-    },
-    {
-      icon: Globe,
-      title: "Gratuit & Illimité",
-      desc: "Pas de limites de taille ou de nombre. Pour toujours.",
+      title: "Zero-Server",
+      desc: "100% local. Zéro transfert. Conforme RGPD par nature.",
     },
   ];
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden">
-      {/* Background blobs */}
       <div className="gradient-blob gradient-blob--1" />
       <div className="gradient-blob gradient-blob--2" />
 
@@ -137,31 +173,75 @@ const Index = () => {
           >
             <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary">
               <Zap className="h-3 w-3" fill="currentColor" />
-              Conversion 100% locale
+              Conversion & PDF 100% locale
             </div>
             <h1 className="text-balance font-display text-4xl font-bold text-foreground md:text-5xl" style={{ lineHeight: "1.08" }}>
               Convertissez vos fichiers
               <br />
               <span className="text-primary">en un éclair</span>
             </h1>
-            <p className="mx-auto mt-5 max-w-md text-pretty text-muted-foreground leading-relaxed">
-              Images, audio, vidéo — tout se passe dans votre navigateur.
-              Rapide, privé, sans inscription.
+            <p className="mx-auto mt-5 max-w-lg text-pretty text-muted-foreground leading-relaxed">
+              Images, audio, vidéo, PDF — tout se passe dans votre navigateur.
+              Rapide, privé, sans inscription. Moteur Docusûr intégré.
             </p>
           </motion.div>
 
-          {/* Drop zone */}
-          <DropZone onFilesAdded={handleFilesAdded} />
+          {/* Drop zone (only when idle or adding more) */}
+          {mode !== "pdf" && (
+            <DropZone onFilesAdded={handleFilesAdded} />
+          )}
+
+          {mode === "pdf" && (
+            <DropZone onFilesAdded={handleFilesAdded} />
+          )}
 
           {/* Security Status */}
           <SecurityStatus
-            hasFiles={files.length > 0}
+            hasFiles={files.length > 0 || pdfFiles.length > 0}
             isConverting={isConverting}
             processingSpeed={processingSpeed}
           />
 
-          {/* File list */}
-          {files.length > 0 && (
+          {/* Mode indicator */}
+          <AnimatePresence>
+            {mode !== "idle" && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.3 }}
+                className="mt-4 flex items-center justify-center gap-2"
+              >
+                <div className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-wider ${
+                  mode === "pdf"
+                    ? "bg-destructive/10 text-destructive"
+                    : "bg-primary/10 text-primary"
+                }`}>
+                  {mode === "pdf" ? (
+                    <>
+                      <FileText className="h-3 w-3" />
+                      Mode PDF — Moteur Docusûr
+                    </>
+                  ) : (
+                    <>
+                      <Music className="h-3 w-3" />
+                      Mode Conversion Média
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* PDF Tools */}
+          {mode === "pdf" && pdfFiles.length > 0 && (
+            <div className="mt-5">
+              <PDFTools pdfFiles={pdfFiles} onClear={handleClearAll} />
+            </div>
+          )}
+
+          {/* Media file list */}
+          {mode === "media" && files.length > 0 && (
             <div className="mt-5">
               <FileList
                 files={files}
@@ -174,7 +254,7 @@ const Index = () => {
           )}
 
           {/* Features */}
-          {files.length === 0 && (
+          {mode === "idle" && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
