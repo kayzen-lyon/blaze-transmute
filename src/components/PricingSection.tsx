@@ -70,7 +70,7 @@ const plans = [
 
 export function PricingSection() {
   return (
-    <section className="mt-24">
+    <section id="formules" className="mt-24 scroll-mt-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
