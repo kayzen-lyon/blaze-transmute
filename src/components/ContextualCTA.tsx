@@ -40,7 +40,7 @@ export function ContextualCTA({ pdfCount, mediaCount }: ContextualCTAProps) {
           </p>
         </div>
         <a
-          href="https://www.kayzen-lyon.fr"
+          href="https://internet.kayzen-lyon.fr"
           target="_blank"
           rel="noopener noreferrer"
           className="flex-shrink-0 flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground transition-all hover:brightness-110 active:scale-95"

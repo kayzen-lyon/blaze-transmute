@@ -71,7 +71,7 @@ export function Header({ onSelectTool }: HeaderProps) {
               Docu<span className="text-destructive">Sûr</span>
             </span>
             <a
-              href="https://www.kayzen-lyon.fr"
+              href="https://internet.kayzen-lyon.fr"
               target="_blank"
               rel="noopener noreferrer"
               className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary transition-colors hover:bg-primary/20"
@@ -106,12 +106,12 @@ export function Header({ onSelectTool }: HeaderProps) {
           </div>
 
           <a
-            href="https://www.kayzen-lyon.fr"
+            href="https://internet.kayzen-lyon.fr"
             target="_blank"
             rel="noopener noreferrer"
             className="ml-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            kayzen-lyon.fr
+            kayzen-web.fr
           </a>
 
           <button
@@ -130,7 +130,7 @@ export function Header({ onSelectTool }: HeaderProps) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 8, scale: 0.97 }}
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-                className="absolute left-0 right-0 top-full mt-1 mx-4 glass-strong rounded-2xl border border-border/40 p-6 shadow-2xl"
+                className="absolute left-0 right-0 top-full mt-1 mx-4 rounded-2xl border border-border/40 bg-background p-6 shadow-2xl"
               >
                 <div className="grid grid-cols-2 gap-8">
                   {/* Media column */}
@@ -174,7 +174,7 @@ export function Header({ onSelectTool }: HeaderProps) {
                     Tous les outils fonctionnent <span className="font-bold text-foreground">100% dans votre navigateur</span>
                   </p>
                   <a
-                    href="https://www.kayzen-lyon.fr"
+                    href="https://internet.kayzen-lyon.fr"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
