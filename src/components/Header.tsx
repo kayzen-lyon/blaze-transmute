@@ -79,12 +79,19 @@ export function Header({ onSelectTool }: HeaderProps) {
             <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-200 ${megaOpen ? "rotate-180" : ""}`} />
           </button>
 
-          <a
-            href="#formules"
+          <Link
+            to="/tarifs"
             className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground active:scale-95"
           >
             Formules
-          </a>
+          </Link>
+
+          <Link
+            to="/securite"
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground active:scale-95"
+          >
+            Sécurité
+          </Link>
 
           <div className="flex items-center gap-1 rounded-full border border-kayzen-green/20 bg-kayzen-green/8 px-2.5 py-1">
             <ShieldCheck className="h-3 w-3 text-kayzen-green" />
