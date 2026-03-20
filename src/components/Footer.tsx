@@ -58,13 +58,29 @@ export function Footer() {
         </a>
       </motion.div>
 
+      {/* Links */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        className="mt-8 flex flex-wrap justify-center gap-x-5 gap-y-2 text-xs text-muted-foreground"
+      >
+        <Link to="/a-propos" className="hover:text-foreground transition-colors">À propos</Link>
+        <Link to="/securite" className="hover:text-foreground transition-colors">Sécurité</Link>
+        <Link to="/tarifs" className="hover:text-foreground transition-colors">Tarifs</Link>
+        <Link to="/cgv" className="hover:text-foreground transition-colors">CGV</Link>
+        <Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link>
+        <Link to="/politique-confidentialite" className="hover:text-foreground transition-colors">Confidentialité</Link>
+      </motion.div>
+
       {/* Bottom bar */}
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="mt-8 flex flex-col items-center gap-3 text-center"
+        className="mt-5 flex flex-col items-center gap-3 text-center"
       >
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>© {new Date().getFullYear()} DocuSûr</span>
