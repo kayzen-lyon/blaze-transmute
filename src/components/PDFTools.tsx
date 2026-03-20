@@ -30,11 +30,10 @@ interface PDFToolsProps {
   onClear: () => void;
   defaultAction?: PDFAction;
 }
-}
 
 let pdfIdCounter = 0;
 
-export function PDFTools({ pdfFiles, onClear }: PDFToolsProps) {
+export function PDFTools({ pdfFiles, onClear, defaultAction }: PDFToolsProps) {
   const [action, setAction] = useState<PDFAction | null>(null);
   const [status, setStatus] = useState<PDFStatus>("idle");
   const [progress, setProgress] = useState(0);
