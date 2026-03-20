@@ -161,7 +161,7 @@ export async function convertWithFFmpeg(
 
   onProgress?.(100);
   const resultData = result as Uint8Array;
-  return new Blob([resultData], { type: targetFormat.mime });
+  return new Blob([new Uint8Array(resultData.buffer as ArrayBuffer)], { type: targetFormat.mime });
 }
 
 export async function convertFile(
