@@ -52,14 +52,43 @@ export const FORMAT_OPTIONS: ConversionFormat[] = [
 ];
 
 export function getFileCategory(file: File): "image" | "audio" | "video" | "document" {
-  if (file.type.startsWith("image/")) return "image";
-  if (file.type.startsWith("audio/")) return "audio";
-  if (file.type.startsWith("video/")) return "video";
+  const type = file.type;
+  if (type.startsWith("image/")) return "image";
+  if (type.startsWith("audio/")) return "audio";
+  if (type.startsWith("video/")) return "video";
+
+  // Fallback: check extension
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  if (ext && ["jpg", "jpeg", "png", "webp", "gif", "bmp", "svg", "tiff", "ico"].includes(ext)) return "image";
+  if (ext && ["mp3", "wav", "ogg", "flac", "aac", "wma", "m4a"].includes(ext)) return "audio";
+  if (ext && ["mp4", "webm", "avi", "mov", "mkv", "flv", "wmv"].includes(ext)) return "video";
+
   return "document";
 }
 
 export function getAvailableFormats(category: "image" | "audio" | "video" | "document"): ConversionFormat[] {
   return FORMAT_OPTIONS.filter((f) => f.category === category);
+}
+
+/**
+ * Load an image file (including SVG) into an HTMLImageElement.
+ * SVGs and other formats that createImageBitmap may not support
+ * are handled via object URL + Image element.
+ */
+function loadImage(file: File): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      resolve(img);
+      // Don't revoke yet — caller may still need the image
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error(`Impossible de charger l'image : ${file.name}`));
+    };
+    img.src = url;
+  });
 }
 
 export async function convertImageCanvas(
@@ -68,21 +97,32 @@ export async function convertImageCanvas(
   onProgress?: (p: number) => void
 ): Promise<Blob> {
   onProgress?.(10);
-  const bitmap = await createImageBitmap(file);
+
+  const img = await loadImage(file);
   onProgress?.(30);
 
+  // For SVGs without intrinsic size, default to 1024
+  let w = img.naturalWidth || img.width;
+  let h = img.naturalHeight || img.height;
+  if (w === 0 || h === 0) {
+    w = 1024;
+    h = 1024;
+  }
+
   const canvas = document.createElement("canvas");
-  canvas.width = bitmap.width;
-  canvas.height = bitmap.height;
+  canvas.width = w;
+  canvas.height = h;
   const ctx = canvas.getContext("2d")!;
-  ctx.drawImage(bitmap, 0, 0);
-  bitmap.close();
+  ctx.drawImage(img, 0, 0, w, h);
+
+  // Clean up object URL
+  URL.revokeObjectURL(img.src);
   onProgress?.(60);
 
   const quality = targetFormat.ext === "png" ? undefined : 0.92;
   const blob = await new Promise<Blob>((resolve, reject) => {
     canvas.toBlob(
-      (b) => (b ? resolve(b) : reject(new Error("Canvas conversion failed"))),
+      (b) => (b ? resolve(b) : reject(new Error("Échec de la conversion Canvas"))),
       targetFormat.mime,
       quality
     );
@@ -100,7 +140,8 @@ export async function convertWithFFmpeg(
   const ffmpeg = await getFFmpeg();
   onProgress?.(20);
 
-  const inputName = `input.${file.name.split(".").pop()}`;
+  const inputExt = file.name.split(".").pop() || "bin";
+  const inputName = `input.${inputExt}`;
   const outputName = `output.${targetFormat.ext}`;
 
   const data = new Uint8Array(await file.arrayBuffer());
@@ -119,8 +160,8 @@ export async function convertWithFFmpeg(
   await ffmpeg.deleteFile(outputName);
 
   onProgress?.(100);
-  const buf = (result as Uint8Array).buffer;
-  return new Blob([new Uint8Array(buf instanceof ArrayBuffer ? buf : new ArrayBuffer(0))], { type: targetFormat.mime });
+  const resultData = result as Uint8Array;
+  return new Blob([resultData], { type: targetFormat.mime });
 }
 
 export async function convertFile(
