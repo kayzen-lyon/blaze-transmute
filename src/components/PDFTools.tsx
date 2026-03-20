@@ -28,17 +28,18 @@ interface PDFFile {
 interface PDFToolsProps {
   pdfFiles: File[];
   onClear: () => void;
+  defaultAction?: PDFAction;
 }
 
 let pdfIdCounter = 0;
 
-export function PDFTools({ pdfFiles, onClear }: PDFToolsProps) {
-  const [action, setAction] = useState<PDFAction | null>(null);
+export function PDFTools({ pdfFiles, onClear, defaultAction }: PDFToolsProps) {
+  const [action, setAction] = useState<PDFAction | null>(defaultAction ?? null);
   const [status, setStatus] = useState<PDFStatus>("idle");
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<Blob | Blob[] | string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showSignature, setShowSignature] = useState(false);
+  const [showSignature, setShowSignature] = useState(defaultAction === "sign");
   const [files, setFiles] = useState<PDFFile[]>(() =>
     pdfFiles.map((f) => ({ id: `pdf-${++pdfIdCounter}`, file: f }))
   );
