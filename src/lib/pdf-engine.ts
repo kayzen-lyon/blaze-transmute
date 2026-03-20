@@ -112,7 +112,7 @@ export async function signPDF(
   onProgress?.(80);
   const signedBytes = await pdfDoc.save();
   onProgress?.(100);
-  return new Blob([signedBytes], { type: "application/pdf" });
+  return new Blob([signedBytes as unknown as ArrayBuffer], { type: "application/pdf" });
 }
 
 /**
