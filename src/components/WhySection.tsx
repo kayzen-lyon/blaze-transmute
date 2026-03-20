@@ -116,7 +116,7 @@ export function WhySection() {
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Critère</p>
             </div>
             <div className="border-b border-border px-4 py-3 text-center">
-              <p className="text-xs font-bold text-primary uppercase tracking-wider">SwiftConvert</p>
+              <p className="text-xs font-bold text-primary uppercase tracking-wider">DocuSûr</p>
             </div>
             <div className="border-b border-border px-4 py-3 text-center">
               <div className="flex items-center justify-center gap-1">
