@@ -1,60 +1,299 @@
+import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/lib/use-theme";
-import { Moon, Sun, Zap, ShieldCheck } from "lucide-react";
-import { motion } from "framer-motion";
+import { Moon, Sun, ShieldCheck, ChevronDown, Menu, X, ArrowRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ALL_TOOLS, Tool } from "@/components/ToolGrid";
+import docusurLogo from "@/assets/docusur-logo.webp";
+import illusImage from "@/assets/illus-image.png";
+import illusAudio from "@/assets/illus-audio.png";
+import illusVideo from "@/assets/illus-video.png";
+import illusPdf from "@/assets/illus-pdf.png";
+import illusOcr from "@/assets/illus-ocr.png";
+import illusSign from "@/assets/illus-sign.png";
 
-export function Header() {
+const toolIllustrations: Record<string, string> = {
+  "convert-image": illusImage,
+  "convert-audio": illusAudio,
+  "convert-video": illusVideo,
+  "pdf-merge": illusPdf,
+  "pdf-split": illusPdf,
+  "pdf-ocr": illusOcr,
+  "pdf-sign": illusSign,
+};
+
+interface HeaderProps {
+  onSelectTool?: (tool: Tool) => void;
+}
+
+export function Header({ onSelectTool }: HeaderProps) {
   const { theme, toggle } = useTheme();
+  const [megaOpen, setMegaOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const megaRef = useRef<HTMLDivElement>(null);
+
+  const mediaTools = ALL_TOOLS.filter((t) => t.category === "media");
+  const pdfTools = ALL_TOOLS.filter((t) => t.category === "pdf");
+
+  // Close mega-menu on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (megaRef.current && !megaRef.current.contains(e.target as Node)) {
+        setMegaOpen(false);
+      }
+    };
+    if (megaOpen) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [megaOpen]);
+
+  const handleToolClick = (tool: Tool) => {
+    onSelectTool?.(tool);
+    setMegaOpen(false);
+    setMobileOpen(false);
+  };
 
   return (
     <motion.header
       initial={{ opacity: 0, y: -12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      className="glass sticky top-0 z-50 flex items-center justify-between px-6 py-4 md:px-12"
+      className="glass sticky top-0 z-50"
     >
-      <div className="flex items-center gap-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary shadow-glow">
-          <Zap className="h-4.5 w-4.5 text-primary-foreground" fill="currentColor" />
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="font-display text-xl font-bold tracking-tight text-foreground">
-            SwiftConvert
-          </span>
+      <div className="flex items-center justify-between px-6 py-3 md:px-10">
+        {/* Logo */}
+        <a href="/" className="flex items-center gap-2.5">
+          <img
+            src={docusurLogo}
+            alt="DocuSûr"
+            className="h-9 w-auto"
+          />
+          <div className="flex items-center gap-2">
+            <span className="font-display text-lg font-bold tracking-tight text-foreground">
+              Docu<span className="text-destructive">Sûr</span>
+            </span>
+            <a
+              href="https://www.kayzen-lyon.fr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary transition-colors hover:bg-primary/20"
+            >
+              by Kayzen
+            </a>
+          </div>
+        </a>
+
+        {/* Desktop nav */}
+        <div className="hidden items-center gap-1 md:flex" ref={megaRef}>
+          <button
+            onClick={() => setMegaOpen(!megaOpen)}
+            className={`flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold transition-all active:scale-95 ${
+              megaOpen
+                ? "bg-primary/10 text-primary"
+                : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+            }`}
+          >
+            Outils
+            <ChevronDown
+              className={`h-3.5 w-3.5 transition-transform duration-200 ${megaOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          {/* Zero-Server Badge */}
+          <div className="flex items-center gap-1 rounded-full border border-kayzen-green/20 bg-kayzen-green/8 px-2.5 py-1">
+            <ShieldCheck className="h-3 w-3 text-kayzen-green" />
+            <span className="text-[9px] font-bold uppercase tracking-wider text-kayzen-green">
+              Zero-Server
+            </span>
+          </div>
+
           <a
             href="https://www.kayzen-lyon.fr"
             target="_blank"
             rel="noopener noreferrer"
-            className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-primary transition-colors hover:bg-primary/20"
+            className="ml-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
-            by Kayzen
+            kayzen-lyon.fr
           </a>
+
+          <button
+            onClick={toggle}
+            className="ml-1 rounded-xl p-2.5 text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground active:scale-95"
+            aria-label="Changer de thème"
+          >
+            {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </button>
+
+          {/* Mega-menu dropdown */}
+          <AnimatePresence>
+            {megaOpen && (
+              <motion.div
+                initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                className="absolute left-0 right-0 top-full mt-1 mx-4 glass-strong rounded-2xl border border-border/40 p-6 shadow-2xl"
+              >
+                <div className="grid grid-cols-2 gap-8">
+                  {/* Media column */}
+                  <div>
+                    <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-primary">
+                      Conversion Média
+                    </h3>
+                    <div className="space-y-1">
+                      {mediaTools.map((tool) => (
+                        <MegaMenuItem
+                          key={tool.id}
+                          tool={tool}
+                          illustration={toolIllustrations[tool.id]}
+                          onClick={() => handleToolClick(tool)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* PDF column */}
+                  <div>
+                    <h3 className="mb-4 text-xs font-bold uppercase tracking-wider text-destructive">
+                      Sécurité PDF Française
+                    </h3>
+                    <div className="space-y-1">
+                      {pdfTools.map((tool) => (
+                        <MegaMenuItem
+                          key={tool.id}
+                          tool={tool}
+                          illustration={toolIllustrations[tool.id]}
+                          onClick={() => handleToolClick(tool)}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom CTA */}
+                <div className="mt-6 flex items-center justify-between rounded-xl bg-primary/5 px-5 py-3">
+                  <p className="text-xs text-muted-foreground">
+                    Tous les outils fonctionnent <span className="font-bold text-foreground">100% dans votre navigateur</span>
+                  </p>
+                  <a
+                    href="https://www.kayzen-lyon.fr"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Découvrir Kayzen
+                    <ArrowRight className="h-3 w-3" />
+                  </a>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
-        {/* Zero-Server Badge */}
-        <div className="hidden items-center gap-1 rounded-full border border-kayzen-green/20 bg-kayzen-green/8 px-2.5 py-1 md:flex">
-          <ShieldCheck className="h-3 w-3 text-kayzen-green" />
-          <span className="text-[9px] font-bold uppercase tracking-wider text-kayzen-green">
-            Zero-Server Certifié
-          </span>
+
+        {/* Mobile hamburger */}
+        <div className="flex items-center gap-2 md:hidden">
+          <button
+            onClick={toggle}
+            className="rounded-xl p-2.5 text-muted-foreground"
+            aria-label="Thème"
+          >
+            {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+          </button>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            className="rounded-xl p-2.5 text-muted-foreground"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        <a
-          href="https://www.kayzen-lyon.fr"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground md:block"
-        >
-          kayzen-lyon.fr
-        </a>
-        <button
-          onClick={toggle}
-          className="rounded-xl p-2.5 text-muted-foreground transition-all duration-200 hover:bg-secondary hover:text-foreground active:scale-95"
-          aria-label="Changer de thème"
-        >
-          {theme === "light" ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-        </button>
-      </div>
+      {/* Mobile menu */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden border-t border-border/30 md:hidden"
+          >
+            <div className="px-6 py-4 space-y-4">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-primary">
+                Conversion Média
+              </h3>
+              {mediaTools.map((tool) => (
+                <button
+                  key={tool.id}
+                  onClick={() => handleToolClick(tool)}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-primary/5 active:scale-[0.98]"
+                >
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${tool.color}`}>
+                    <tool.icon className={`h-4 w-4 ${tool.iconColor}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{tool.label}</p>
+                    <p className="text-[11px] text-muted-foreground">{tool.desc}</p>
+                  </div>
+                </button>
+              ))}
+
+              <h3 className="text-xs font-bold uppercase tracking-wider text-destructive pt-2">
+                Sécurité PDF
+              </h3>
+              {pdfTools.map((tool) => (
+                <button
+                  key={tool.id}
+                  onClick={() => handleToolClick(tool)}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors hover:bg-primary/5 active:scale-[0.98]"
+                >
+                  <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${tool.color}`}>
+                    <tool.icon className={`h-4 w-4 ${tool.iconColor}`} />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">{tool.label}</p>
+                    <p className="text-[11px] text-muted-foreground">{tool.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
+  );
+}
+
+function MegaMenuItem({
+  tool,
+  illustration,
+  onClick,
+}: {
+  tool: Tool;
+  illustration?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="group flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-all hover:bg-primary/5 active:scale-[0.98]"
+    >
+      {illustration ? (
+        <img
+          src={illustration}
+          alt={tool.label}
+          className="h-10 w-10 rounded-lg object-contain transition-transform duration-200 group-hover:scale-110"
+        />
+      ) : (
+        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tool.color}`}>
+          <tool.icon className={`h-5 w-5 ${tool.iconColor}`} />
+        </div>
+      )}
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
+          {tool.label}
+        </p>
+        <p className="text-[11px] text-muted-foreground leading-snug">{tool.desc}</p>
+      </div>
+      <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/0 transition-all group-hover:text-primary group-hover:translate-x-0.5 group-hover:text-muted-foreground/100" />
+    </button>
   );
 }
