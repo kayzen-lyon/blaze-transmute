@@ -1,9 +1,32 @@
 import { motion } from "framer-motion";
-import { ArrowRight, Zap, Shield } from "lucide-react";
+import { ArrowRight, Zap, Shield, FileText } from "lucide-react";
 
 export function Footer() {
   return (
     <footer className="mt-24 pb-12">
+      {/* About / Docusûr */}
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.3 }}
+        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+        className="glass rounded-2xl p-6 md:p-7 mb-6"
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 rounded-xl bg-primary/10 p-3">
+            <FileText className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-display text-base font-bold text-foreground mb-2">
+              À propos de SwiftConvert
+            </h3>
+            <p className="text-sm leading-relaxed text-muted-foreground text-pretty">
+              SwiftConvert regroupe le meilleur de nos technologies (incluant le moteur <span className="font-semibold text-foreground">Docusûr</span>) pour offrir aux entreprises lyonnaises un outil de productivité souverain. Conversion média, manipulation PDF, OCR intelligent — tout fonctionne sans serveur distant.
+            </p>
+          </div>
+        </div>
+      </motion.div>
+
       {/* CTA Agence */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
@@ -20,8 +43,8 @@ export function Footer() {
           <br />
           <span className="text-primary">aussi performant et sécurisé</span> que cet outil.
         </h3>
-        <p className="mx-auto mt-4 max-w-md text-sm text-muted-foreground text-pretty leading-relaxed">
-          Nous concevons des applications web sur-mesure pour les entreprises qui ne transigent pas sur la performance et la sécurité.
+        <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground text-pretty leading-relaxed">
+          Besoin d'une solution sur-mesure pour automatiser vos processus PDF ? Nous concevons des applications web pour les entreprises qui ne transigent pas sur la performance et la sécurité des données.
         </p>
         <a
           href="https://www.kayzen-lyon.fr"
@@ -57,7 +80,7 @@ export function Footer() {
           </a>
         </div>
         <p className="text-[11px] text-muted-foreground/60">
-          Aucune donnée collectée · Aucun cookie · 100% local
+          Aucune donnée collectée · Aucun cookie · Moteur Docusûr intégré · 100% local
         </p>
       </motion.div>
     </footer>

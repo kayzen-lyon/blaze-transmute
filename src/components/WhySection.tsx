@@ -1,5 +1,8 @@
 import { motion } from "framer-motion";
-import { ShieldCheck, Trash2, Cpu, Lock, FileX, Gauge } from "lucide-react";
+import {
+  ShieldCheck, Trash2, Cpu, Lock, FileX, Gauge,
+  Brain, Server, CloudOff, CheckCircle, XCircle,
+} from "lucide-react";
 
 const reasons = [
   {
@@ -20,6 +23,21 @@ const reasons = [
     desc: "En utilisant les ressources de votre processeur (WebAssembly), SwiftConvert traite vos fichiers à la vitesse de l'éclair, sans file d'attente.",
     badge: "WebAssembly",
   },
+  {
+    icon: Brain,
+    title: "IA de Proximité (Edge AI)",
+    desc: "L'OCR utilisé pour la reconnaissance de texte est une IA de proximité qui respecte le RGPD par nature. Votre document n'alimente aucune base de données d'IA tierce. Le calcul reste sur votre processeur.",
+    badge: "RGPD Natif",
+  },
+];
+
+const comparison = [
+  { feature: "Transfert serveur", swift: false, cloud: true },
+  { feature: "Risque de fuite de données", swift: false, cloud: true },
+  { feature: "Dépendance internet", swift: false, cloud: true },
+  { feature: "Rapidité locale", swift: true, cloud: false },
+  { feature: "Conformité RGPD native", swift: true, cloud: false },
+  { feature: "OCR sans IA tierce", swift: true, cloud: false },
 ];
 
 export function WhySection() {
@@ -43,6 +61,7 @@ export function WhySection() {
         </h2>
       </motion.div>
 
+      {/* Reasons */}
       <div className="space-y-4">
         {reasons.map((r, i) => (
           <motion.div
@@ -52,7 +71,7 @@ export function WhySection() {
             viewport={{ once: true, amount: 0.2 }}
             transition={{
               duration: 0.5,
-              delay: i * 0.1,
+              delay: i * 0.08,
               ease: [0.16, 1, 0.3, 1],
             }}
             className="glass-strong rounded-2xl p-6 md:p-7"
@@ -78,6 +97,64 @@ export function WhySection() {
           </motion.div>
         ))}
       </div>
+
+      {/* Comparison table */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.5, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="mt-10"
+      >
+        <h3 className="font-display text-lg font-bold text-foreground text-center mb-5">
+          SwiftConvert <span className="text-primary">vs</span> Outils Cloud
+        </h3>
+        <div className="glass-strong rounded-2xl overflow-hidden">
+          <div className="grid grid-cols-3 gap-0">
+            {/* Header */}
+            <div className="border-b border-border px-4 py-3">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Critère</p>
+            </div>
+            <div className="border-b border-border px-4 py-3 text-center">
+              <p className="text-xs font-bold text-primary uppercase tracking-wider">SwiftConvert</p>
+            </div>
+            <div className="border-b border-border px-4 py-3 text-center">
+              <div className="flex items-center justify-center gap-1">
+                <Server className="h-3 w-3 text-muted-foreground" />
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Cloud</p>
+              </div>
+            </div>
+
+            {/* Rows */}
+            {comparison.map((row, i) => (
+              <>
+                <div key={`f-${i}`} className={`px-4 py-3 ${i < comparison.length - 1 ? "border-b border-border/50" : ""}`}>
+                  <p className="text-xs font-medium text-foreground">{row.feature}</p>
+                </div>
+                <div key={`s-${i}`} className={`flex items-center justify-center px-4 py-3 ${i < comparison.length - 1 ? "border-b border-border/50" : ""}`}>
+                  {row.swift ? (
+                    <CheckCircle className="h-4 w-4 text-kayzen-green" />
+                  ) : (
+                    <div className="flex h-5 w-5 items-center justify-center rounded-full bg-kayzen-green/10">
+                      <CloudOff className="h-3 w-3 text-kayzen-green" />
+                    </div>
+                  )}
+                </div>
+                <div key={`c-${i}`} className={`flex items-center justify-center px-4 py-3 ${i < comparison.length - 1 ? "border-b border-border/50" : ""}`}>
+                  {row.cloud ? (
+                    <XCircle className="h-4 w-4 text-destructive/60" />
+                  ) : (
+                    <XCircle className="h-4 w-4 text-destructive/40" />
+                  )}
+                </div>
+              </>
+            ))}
+          </div>
+        </div>
+        <p className="mt-3 text-center text-[11px] text-muted-foreground">
+          0% de risque de fuite de données · 100% de rapidité locale
+        </p>
+      </motion.div>
 
       {/* Technical specs bar */}
       <motion.div
