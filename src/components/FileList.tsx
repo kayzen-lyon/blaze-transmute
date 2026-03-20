@@ -1,21 +1,11 @@
-import { useState, forwardRef } from "react";
+import { useState, useMemo, forwardRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Image,
-  Music,
-  Video,
-  FileText,
-  ChevronDown,
-  X,
-  Download,
-  Loader2,
-  Check,
-  AlertCircle,
+  Image, Music, Video, FileText, ChevronDown, X, Download,
+  Loader2, Check, AlertCircle, Settings2, Eye, Archive,
 } from "lucide-react";
 import {
-  ConversionFormat,
-  getFileCategory,
-  getAvailableFormats,
+  ConversionFormat, getFileCategory, getAvailableFormats,
 } from "@/lib/ffmpeg";
 
 export type FileStatus = "idle" | "converting" | "done" | "error";
@@ -36,19 +26,56 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-const categoryIcons = {
-  image: Image,
-  audio: Music,
-  video: Video,
-  document: FileText,
-};
-
+const categoryIcons = { image: Image, audio: Music, video: Video, document: FileText };
 const categoryColors: Record<string, string> = {
   image: "bg-primary/10 text-primary",
   audio: "bg-accent/10 text-accent",
   video: "bg-kayzen-glow/10 text-kayzen-glow",
   document: "bg-muted text-muted-foreground",
 };
+
+// ==================== Preview thumbnail ====================
+
+function FilePreview({ file }: { file: File }) {
+  const [src, setSrc] = useState<string | null>(null);
+  const category = getFileCategory(file);
+
+  useState(() => {
+    if (category === "image") {
+      const url = URL.createObjectURL(file);
+      setSrc(url);
+    }
+  });
+
+  if (!src) return null;
+  return (
+    <img
+      src={src}
+      alt={file.name}
+      className="h-12 w-12 rounded-lg object-cover border border-border/30"
+      onLoad={() => {/* keep URL alive for display */}}
+    />
+  );
+}
+
+function ResultPreview({ result, format }: { result: Blob; format: ConversionFormat }) {
+  const [src, setSrc] = useState<string | null>(null);
+  useState(() => {
+    if (format.category === "image") {
+      setSrc(URL.createObjectURL(result));
+    }
+  });
+  if (!src) return null;
+  return (
+    <img
+      src={src}
+      alt="Résultat"
+      className="h-12 w-12 rounded-lg object-cover border-2 border-kayzen-green/30"
+    />
+  );
+}
+
+// ==================== File Card ====================
 
 interface FileCardProps {
   item: ConvertibleFile;
@@ -70,12 +97,15 @@ const FileCard = forwardRef<HTMLDivElement, FileCardProps>(
       if (!item.result || !item.targetFormat) return;
       const url = URL.createObjectURL(item.result);
       const a = document.createElement("a");
-      const baseName = item.file.name.replace(/\.[^/.]+$/, "");
       a.href = url;
-      a.download = `${baseName}.${item.targetFormat.ext}`;
+      a.download = `${item.file.name.replace(/\.[^/.]+$/, "")}.${item.targetFormat.ext}`;
       a.click();
       URL.revokeObjectURL(url);
     };
+
+    const sizeReduction = item.result && item.targetFormat
+      ? ((1 - item.result.size / item.file.size) * 100).toFixed(0)
+      : null;
 
     return (
       <motion.div
@@ -98,18 +128,40 @@ const FileCard = forwardRef<HTMLDivElement, FileCardProps>(
           />
         )}
 
-        <div className="relative flex items-center gap-4">
-          <div className={`flex-shrink-0 rounded-xl p-2.5 ${colorClass}`}>
-            <Icon className="h-5 w-5" />
-          </div>
+        <div className="relative flex items-center gap-3">
+          {/* Preview or icon */}
+          {item.status === "done" && item.result && item.targetFormat ? (
+            <div className="flex items-center gap-2">
+              <FilePreview file={item.file} />
+              <span className="text-muted-foreground text-[10px]">→</span>
+              <ResultPreview result={item.result} format={item.targetFormat} />
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <FilePreview file={item.file} />
+              {!["image"].includes(category) && (
+                <div className={`flex-shrink-0 rounded-xl p-2.5 ${colorClass}`}>
+                  <Icon className="h-5 w-5" />
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-foreground">
-              {item.file.name}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
-              {formatSize(item.file.size)} · {ext}
-            </p>
+            <p className="truncate text-sm font-semibold text-foreground">{item.file.name}</p>
+            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+              <span>{formatSize(item.file.size)} · {ext}</span>
+              {item.status === "done" && item.result && (
+                <>
+                  <span className="text-kayzen-green">→ {formatSize(item.result.size)}</span>
+                  {sizeReduction && Number(sizeReduction) > 0 && (
+                    <span className="rounded-md bg-kayzen-green/10 px-1.5 py-0.5 text-[10px] font-bold text-kayzen-green">
+                      -{sizeReduction}%
+                    </span>
+                  )}
+                </>
+              )}
+            </div>
           </div>
 
           {/* Format selector */}
@@ -120,47 +172,52 @@ const FileCard = forwardRef<HTMLDivElement, FileCardProps>(
               className="flex items-center gap-1.5 rounded-xl border border-border bg-background px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-primary/30 disabled:opacity-50"
             >
               {item.targetFormat?.label || "Format"}
-              <ChevronDown className="h-3 w-3" />
+              <ChevronDown className={`h-3 w-3 transition-transform ${showFormats ? "rotate-180" : ""}`} />
             </button>
 
-            {showFormats && (
-              <motion.div
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="absolute right-0 top-full z-20 mt-1 w-36 glass-strong rounded-xl p-1.5 shadow-xl"
-              >
-                {formats.map((f) => (
-                  <button
-                    key={f.ext}
-                    onClick={() => {
-                      onFormatChange(item.id, f);
-                      setShowFormats(false);
-                    }}
-                    className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                  >
-                    {f.label}
-                  </button>
-                ))}
-              </motion.div>
-            )}
+            <AnimatePresence>
+              {showFormats && (
+                <motion.div
+                  initial={{ opacity: 0, y: -4, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -4, scale: 0.95 }}
+                  transition={{ duration: 0.15 }}
+                  className="absolute right-0 top-full z-20 mt-1 w-36 rounded-xl border border-border/40 bg-background p-1.5 shadow-xl"
+                >
+                  {formats
+                    .filter((f) => f.ext !== item.file.name.split(".").pop()?.toLowerCase())
+                    .map((f) => (
+                      <button
+                        key={f.ext}
+                        onClick={() => { onFormatChange(item.id, f); setShowFormats(false); }}
+                        className={`w-full rounded-lg px-3 py-2 text-left text-xs font-semibold transition-colors hover:bg-primary/10 hover:text-primary ${
+                          item.targetFormat?.ext === f.ext ? "bg-primary/10 text-primary" : "text-foreground"
+                        }`}
+                      >
+                        .{f.ext.toUpperCase()}
+                      </button>
+                    ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Actions */}
           {item.status === "idle" && item.targetFormat && (
-            <button
+            <motion.button
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
               onClick={() => onConvert(item.id)}
               className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-95"
             >
               Convertir
-            </button>
+            </motion.button>
           )}
 
           {item.status === "converting" && (
             <div className="flex items-center gap-2">
               <Loader2 className="h-4 w-4 animate-spin text-primary" />
-              <span className="text-xs font-mono font-semibold text-primary">
-                {item.progress}%
-              </span>
+              <span className="text-xs font-mono font-semibold text-primary">{item.progress}%</span>
             </div>
           )}
 
@@ -177,7 +234,7 @@ const FileCard = forwardRef<HTMLDivElement, FileCardProps>(
           {item.status === "error" && (
             <div className="flex items-center gap-1.5 text-destructive">
               <AlertCircle className="h-4 w-4" />
-              <span className="text-xs font-semibold">Erreur</span>
+              <span className="text-xs font-semibold max-w-[120px] truncate" title={item.error || ""}>{item.error || "Erreur"}</span>
             </div>
           )}
 
@@ -198,8 +255,62 @@ const FileCard = forwardRef<HTMLDivElement, FileCardProps>(
     );
   }
 );
-
 FileCard.displayName = "FileCard";
+
+// ==================== Batch Controls ====================
+
+function BatchFormatSelector({
+  files,
+  onApplyAll,
+}: {
+  files: ConvertibleFile[];
+  onApplyAll: (format: ConversionFormat) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const firstFile = files[0];
+  if (!firstFile) return null;
+  const category = getFileCategory(firstFile.file);
+  const formats = getAvailableFormats(category);
+  const currentExt = firstFile.file.name.split(".").pop()?.toLowerCase();
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 rounded-xl border border-primary/20 bg-primary/5 px-3 py-2 text-xs font-semibold text-primary transition-all hover:bg-primary/10 active:scale-95"
+      >
+        <Settings2 className="h-3.5 w-3.5" />
+        Appliquer un format à tous
+        <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.95 }}
+            transition={{ duration: 0.15 }}
+            className="absolute left-0 top-full z-20 mt-1 w-40 rounded-xl border border-border/40 bg-background p-1.5 shadow-xl"
+          >
+            {formats
+              .filter((f) => f.ext !== currentExt)
+              .map((f) => (
+                <button
+                  key={f.ext}
+                  onClick={() => { onApplyAll(f); setOpen(false); }}
+                  className="w-full rounded-lg px-3 py-2 text-left text-xs font-semibold text-foreground hover:bg-primary/10 hover:text-primary transition-colors"
+                >
+                  Tout en .{f.ext.toUpperCase()}
+                </button>
+              ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+// ==================== Main FileList ====================
 
 interface FileListProps {
   files: ConvertibleFile[];
@@ -214,19 +325,44 @@ export const FileList = forwardRef<HTMLDivElement, FileListProps>(
     const allHaveFormat = files.every((f) => f.targetFormat !== null);
     const hasIdle = files.some((f) => f.status === "idle" && f.targetFormat);
     const allDone = files.length > 0 && files.every((f) => f.status === "done");
+    const doneCount = files.filter((f) => f.status === "done").length;
 
-    const handleDownloadAll = () => {
-      files.forEach((item) => {
-        if (item.result && item.targetFormat) {
-          const url = URL.createObjectURL(item.result);
-          const a = document.createElement("a");
-          const baseName = item.file.name.replace(/\.[^/.]+$/, "");
-          a.href = url;
-          a.download = `${baseName}.${item.targetFormat.ext}`;
-          a.click();
-          URL.revokeObjectURL(url);
-        }
+    const totalOriginal = files.reduce((s, f) => s + f.file.size, 0);
+    const totalConverted = files.filter((f) => f.result).reduce((s, f) => s + (f.result?.size || 0), 0);
+
+    const handleApplyAll = (format: ConversionFormat) => {
+      files.forEach((f) => {
+        if (f.status === "idle") onFormatChange(f.id, format);
       });
+    };
+
+    const handleDownloadAllZip = async () => {
+      const doneFiles = files.filter((f) => f.result && f.targetFormat);
+      if (doneFiles.length === 0) return;
+      if (doneFiles.length === 1) {
+        const item = doneFiles[0];
+        const url = URL.createObjectURL(item.result!);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${item.file.name.replace(/\.[^/.]+$/, "")}.${item.targetFormat!.ext}`;
+        a.click();
+        URL.revokeObjectURL(url);
+        return;
+      }
+      // Multiple → ZIP
+      const JSZip = (await import("jszip")).default;
+      const zip = new JSZip();
+      for (const item of doneFiles) {
+        const baseName = item.file.name.replace(/\.[^/.]+$/, "");
+        zip.file(`${baseName}.${item.targetFormat!.ext}`, item.result!);
+      }
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const url = URL.createObjectURL(zipBlob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "docusur-conversion.zip";
+      a.click();
+      URL.revokeObjectURL(url);
     };
 
     return (
@@ -237,31 +373,52 @@ export const FileList = forwardRef<HTMLDivElement, FileListProps>(
         transition={{ duration: 0.5, delay: 0.1 }}
         className="space-y-3"
       >
+        {/* Batch toolbar */}
         {files.length > 1 && (
-          <div className="flex items-center justify-between px-1">
-            <p className="text-sm font-medium text-muted-foreground">
-              {files.length} fichier{files.length > 1 ? "s" : ""}
-            </p>
-            <div className="flex gap-2">
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass rounded-xl px-4 py-3 flex flex-wrap items-center justify-between gap-3"
+          >
+            <div className="flex items-center gap-3">
+              <p className="text-sm font-semibold text-foreground">
+                {files.length} fichier{files.length > 1 ? "s" : ""}
+              </p>
+              {doneCount > 0 && (
+                <span className="rounded-md bg-kayzen-green/10 px-2 py-0.5 text-[11px] font-bold text-kayzen-green">
+                  {doneCount}/{files.length} terminé{doneCount > 1 ? "s" : ""}
+                </span>
+              )}
+              {allDone && totalConverted > 0 && (
+                <span className="text-[11px] text-muted-foreground">
+                  {formatSize(totalOriginal)} → {formatSize(totalConverted)}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2">
+              {!allDone && <BatchFormatSelector files={files} onApplyAll={handleApplyAll} />}
+
               {hasIdle && allHaveFormat && (
                 <button
                   onClick={onConvertAll}
-                  className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-95"
+                  className="rounded-xl bg-primary px-5 py-2.5 text-xs font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-95"
                 >
                   Tout convertir
                 </button>
               )}
+
               {allDone && (
                 <button
-                  onClick={handleDownloadAll}
-                  className="flex items-center gap-2 rounded-xl bg-kayzen-green px-5 py-2.5 text-sm font-semibold text-accent-foreground transition-all hover:brightness-110 active:scale-95"
+                  onClick={handleDownloadAllZip}
+                  className="flex items-center gap-2 rounded-xl bg-kayzen-green px-5 py-2.5 text-xs font-semibold text-accent-foreground transition-all hover:brightness-110 active:scale-95"
                 >
-                  <Download className="h-4 w-4" />
-                  Tout télécharger
+                  <Archive className="h-4 w-4" />
+                  Télécharger en ZIP
                 </button>
               )}
             </div>
-          </div>
+          </motion.div>
         )}
 
         <div className="space-y-2.5">
@@ -279,5 +436,4 @@ export const FileList = forwardRef<HTMLDivElement, FileListProps>(
     );
   }
 );
-
 FileList.displayName = "FileList";
