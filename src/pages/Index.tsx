@@ -2,19 +2,20 @@ import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Header } from "@/components/Header";
 import { ToolGrid, Tool, ALL_TOOLS } from "@/components/ToolGrid";
+import { HeroToolGrid } from "@/components/HeroToolGrid";
 import { DropZone } from "@/components/DropZone";
 import { FileList, ConvertibleFile } from "@/components/FileList";
 import { UniversalProcessor } from "@/components/UniversalProcessor";
 import { SecurityStatus } from "@/components/SecurityStatus";
 import { ContextualCTA } from "@/components/ContextualCTA";
 import { WhySection } from "@/components/WhySection";
+import { PricingSection } from "@/components/PricingSection";
 import { Footer } from "@/components/Footer";
 import { ConversionFormat, convertFile } from "@/lib/ffmpeg";
 import { detectFilesMode, type FileMode } from "@/lib/file-detect";
-import { Zap } from "lucide-react";
+import { Zap, ShieldCheck, Cpu, FileText } from "lucide-react";
 
 let fileIdCounter = 0;
-
 const isPdfCategory = (cat: string) => cat.startsWith("pdf-");
 
 const Index = () => {
@@ -25,6 +26,7 @@ const Index = () => {
   const [detectedMode, setDetectedMode] = useState<FileMode>(null);
   const [pdfOpsCount, setPdfOpsCount] = useState(0);
   const [mediaOpsCount, setMediaOpsCount] = useState(0);
+  const [showAllTools, setShowAllTools] = useState(false);
   const conversionStartRef = useRef<number>(0);
   const fileSizeRef = useRef<number>(0);
 
@@ -37,6 +39,7 @@ const Index = () => {
     setPdfFiles([]);
     setProcessingSpeed(null);
     setDetectedMode(isPdfCategory(tool.category) ? "pdf" : "image");
+    setShowAllTools(false);
   }, []);
 
   const handleBack = useCallback(() => {
@@ -58,9 +61,7 @@ const Index = () => {
     (newFiles: File[]) => {
       const mode = detectFilesMode(newFiles);
       setDetectedMode(mode);
-
       const isPdf = activeTool ? isPdfCategory(activeTool.category) : mode === "pdf";
-
       if (isPdf) {
         setPdfFiles((prev) => [...prev, ...newFiles]);
       } else {
@@ -88,18 +89,12 @@ const Index = () => {
   }, []);
 
   const handleFormatChange = useCallback((id: string, format: ConversionFormat) => {
-    setFiles((prev) =>
-      prev.map((f) => (f.id === id ? { ...f, targetFormat: format } : f))
-    );
+    setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, targetFormat: format } : f)));
   }, []);
 
   const handleConvert = useCallback(
     async (id: string) => {
-      setFiles((prev) =>
-        prev.map((f) =>
-          f.id === id ? { ...f, status: "converting" as const, progress: 0 } : f
-        )
-      );
+      setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, status: "converting" as const, progress: 0 } : f)));
       const item = files.find((f) => f.id === id);
       if (!item || !item.targetFormat) return;
       conversionStartRef.current = performance.now();
@@ -116,13 +111,9 @@ const Index = () => {
         });
         const elapsed = (performance.now() - conversionStartRef.current) / 1000;
         if (elapsed > 0) setProcessingSpeed(fileSizeRef.current / elapsed);
-        setFiles((prev) =>
-          prev.map((f) => (f.id === id ? { ...f, status: "done" as const, progress: 100, result } : f))
-        );
+        setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, status: "done" as const, progress: 100, result } : f)));
       } catch (err) {
-        setFiles((prev) =>
-          prev.map((f) => (f.id === id ? { ...f, status: "error" as const, error: (err as Error).message } : f))
-        );
+        setFiles((prev) => prev.map((f) => (f.id === id ? { ...f, status: "error" as const, error: (err as Error).message } : f)));
       }
     },
     [files]
@@ -143,7 +134,8 @@ const Index = () => {
       <div className="gradient-blob gradient-blob--2" />
       <div className="relative z-10">
         <Header onSelectTool={handleSelectTool} />
-        <main className="mx-auto max-w-4xl px-6 pb-8 pt-8 md:pt-14">
+        <main className="mx-auto max-w-5xl px-4 pb-8 pt-6 md:px-8 md:pt-12">
+          {/* Hero */}
           <motion.div
             initial={{ opacity: 0, y: 18, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -151,19 +143,40 @@ const Index = () => {
             className="mb-8 text-center"
           >
             <div className="mb-4 inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-xs font-semibold text-primary">
-              <Zap className="h-3 w-3" fill="currentColor" />
-              {ALL_TOOLS.length} outils · 100% local · Zero-Server
+              <ShieldCheck className="h-3 w-3" />
+              {ALL_TOOLS.length} outils · 100% gratuit · Zero-Server
             </div>
-            <h1 className="text-balance font-display text-3xl font-bold text-foreground md:text-4xl" style={{ lineHeight: "1.1" }}>
-              Sécurité PDF Française
+            <h1
+              className="text-balance font-display text-3xl font-bold text-foreground md:text-5xl"
+              style={{ lineHeight: "1.08" }}
+            >
+              Tous vos documents,
               <br />
-              <span className="text-primary">& Conversion Zero-Server</span>
+              <span className="text-primary">traités en toute sécurité.</span>
             </h1>
-            <p className="mx-auto mt-4 max-w-lg text-pretty text-sm text-muted-foreground leading-relaxed">
-              Déposez n'importe quel fichier — on détecte automatiquement le type et adapte les outils. {ALL_TOOLS.length} outils PDF, média, OCR, signature — tout dans votre navigateur.
+            <p className="mx-auto mt-4 max-w-lg text-pretty text-sm text-muted-foreground leading-relaxed md:text-base">
+              PDF, images, audio, vidéo — {ALL_TOOLS.length} outils professionnels qui fonctionnent directement dans votre navigateur. Aucun fichier ne quitte votre ordinateur.
             </p>
+
+            {/* Trust badges */}
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
+              {[
+                { icon: ShieldCheck, label: "Zero-Server", sub: "Aucun transfert" },
+                { icon: Cpu, label: "WebAssembly", sub: "Vitesse native" },
+                { icon: FileText, label: `${ALL_TOOLS.length} outils`, sub: "PDF & Média" },
+              ].map((b) => (
+                <div key={b.label} className="flex items-center gap-2 rounded-full border border-border/50 bg-background/50 px-3 py-1.5">
+                  <b.icon className="h-3.5 w-3.5 text-primary" />
+                  <div className="text-left">
+                    <p className="text-[11px] font-bold text-foreground leading-tight">{b.label}</p>
+                    <p className="text-[9px] text-muted-foreground">{b.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </motion.div>
 
+          {/* Drop Zone */}
           <DropZone
             onFilesAdded={handleFilesAdded}
             activeTool={activeTool}
@@ -185,15 +198,9 @@ const Index = () => {
           <AnimatePresence mode="wait">
             {showPdfProcessor && pdfFiles.length > 0 && (
               <motion.div key="pdf-proc" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} className="mt-4">
-                <UniversalProcessor
-                  toolId={activeTool?.id || "fusionner"}
-                  files={pdfFiles}
-                  onClear={handleBack}
-                  onProcessed={() => setPdfOpsCount((c) => c + 1)}
-                />
+                <UniversalProcessor toolId={activeTool?.id || "fusionner"} files={pdfFiles} onClear={handleBack} onProcessed={() => setPdfOpsCount((c) => c + 1)} />
               </motion.div>
             )}
-
             {showMediaList && (
               <motion.div key="media-tools" initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} className="mt-4">
                 <FileList files={files} onRemove={handleRemove} onFormatChange={handleFormatChange} onConvert={handleConvert} onConvertAll={handleConvertAll} />
@@ -203,16 +210,31 @@ const Index = () => {
 
           <ContextualCTA pdfCount={pdfOpsCount} mediaCount={mediaOpsCount} />
 
-          <AnimatePresence>
-            {showToolGrid && (
-              <motion.div key="grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="mt-10">
-                <h2 className="text-center font-display text-lg font-bold text-foreground mb-6">Ou choisissez un outil spécifique</h2>
+          {/* Tool display section */}
+          <AnimatePresence mode="wait">
+            {showToolGrid && !showAllTools && (
+              <motion.div key="hero-grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="mt-10">
+                <HeroToolGrid onSelectTool={handleSelectTool} onShowAll={() => setShowAllTools(true)} />
+              </motion.div>
+            )}
+            {showToolGrid && showAllTools && (
+              <motion.div key="full-grid" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }} className="mt-10">
+                <div className="mb-4 flex items-center justify-between px-1">
+                  <h2 className="font-display text-sm font-bold text-foreground">Tous les outils</h2>
+                  <button
+                    onClick={() => setShowAllTools(false)}
+                    className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors active:scale-95"
+                  >
+                    ← Outils populaires
+                  </button>
+                </div>
                 <ToolGrid onSelectTool={handleSelectTool} />
               </motion.div>
             )}
           </AnimatePresence>
 
           <WhySection />
+          <PricingSection />
           <Footer />
         </main>
       </div>
