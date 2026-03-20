@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useTheme } from "@/lib/use-theme";
-import { Moon, Sun, ShieldCheck, ChevronDown, Menu, X, ArrowRight, FileText, PenTool, Shield, ArrowRightLeft, ScanText, Image, Music, Video } from "lucide-react";
+import { Moon, Sun, ShieldCheck, ChevronDown, Menu, X, ArrowRight, FileText, PenTool, Shield, ArrowRightLeft, ScanText } from "lucide-react";
+import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ALL_TOOLS, Tool, ToolCategory } from "@/components/ToolGrid";
 import docusurLogo from "@/assets/docusur-logo.webp";
