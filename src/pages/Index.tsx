@@ -193,7 +193,7 @@ const Index = () => {
       <div className="gradient-blob gradient-blob--2" />
 
       <div className="relative z-10">
-        <Header />
+        <Header onSelectTool={handleSelectTool} />
 
         <main className="mx-auto max-w-3xl px-6 pb-8 pt-8 md:pt-14">
           {/* Hero */}
