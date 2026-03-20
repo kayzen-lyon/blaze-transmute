@@ -69,16 +69,31 @@ export function UniversalProcessor({ toolId, files, onClear, onProcessed }: Univ
     }
   }, [processor, files, options, toolOptions, onProcessed]);
 
-  const downloadAll = () => {
+  const downloadAll = async () => {
     if (!result) return;
-    result.files.forEach((f) => {
+    if (result.files.length === 1) {
+      const f = result.files[0];
       const url = URL.createObjectURL(f.blob);
       const a = document.createElement("a");
       a.href = url;
       a.download = f.filename;
       a.click();
       URL.revokeObjectURL(url);
-    });
+      return;
+    }
+    // Multiple files → ZIP
+    const JSZip = (await import("jszip")).default;
+    const zip = new JSZip();
+    for (const f of result.files) {
+      zip.file(f.filename, f.blob);
+    }
+    const zipBlob = await zip.generateAsync({ type: "blob" });
+    const url = URL.createObjectURL(zipBlob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `docusur-${toolId}.zip`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   return (
