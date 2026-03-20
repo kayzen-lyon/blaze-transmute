@@ -42,7 +42,7 @@ export async function splitPDF(
     const [page] = await newDoc.copyPages(srcDoc, [i]);
     newDoc.addPage(page);
     const pageBytes = await newDoc.save();
-    results.push(new Blob([pageBytes], { type: "application/pdf" }));
+    results.push(new Blob([pageBytes as unknown as ArrayBuffer], { type: "application/pdf" }));
     onProgress?.(10 + Math.round((i / totalPages) * 85));
   }
 
