@@ -119,7 +119,7 @@ export async function convertWithFFmpeg(
   await ffmpeg.deleteFile(outputName);
 
   onProgress?.(100);
-  return new Blob([result], { type: targetFormat.mime });
+  return new Blob([result as Uint8Array], { type: targetFormat.mime });
 }
 
 export async function convertFile(
