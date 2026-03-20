@@ -107,7 +107,7 @@ export function WhySection() {
         className="mt-10"
       >
         <h3 className="font-display text-lg font-bold text-foreground text-center mb-5">
-          SwiftConvert <span className="text-primary">vs</span> Outils Cloud
+          DocuSûr <span className="text-primary">vs</span> Outils Cloud
         </h3>
         <div className="glass-strong rounded-2xl overflow-hidden">
           <div className="grid grid-cols-3 gap-0">
