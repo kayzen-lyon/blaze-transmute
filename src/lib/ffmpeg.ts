@@ -119,7 +119,8 @@ export async function convertWithFFmpeg(
   await ffmpeg.deleteFile(outputName);
 
   onProgress?.(100);
-  return new Blob([result as Uint8Array], { type: targetFormat.mime });
+  const buf = (result as Uint8Array).buffer;
+  return new Blob([new Uint8Array(buf instanceof ArrayBuffer ? buf : new ArrayBuffer(0))], { type: targetFormat.mime });
 }
 
 export async function convertFile(
