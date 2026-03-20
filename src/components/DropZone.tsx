@@ -1,17 +1,36 @@
 import { useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, FileIcon, Zap, ArrowLeft } from "lucide-react";
+import { Upload, FileIcon, Zap, ArrowLeft, Trash2, Info } from "lucide-react";
 import type { Tool } from "@/components/ToolGrid";
+import type { FileMode } from "@/lib/file-detect";
+import { getModeInfo } from "@/lib/file-detect";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface DropZoneProps {
   onFilesAdded: (files: File[]) => void;
   activeTool?: Tool | null;
   onBack?: () => void;
+  onClearAll?: () => void;
   compact?: boolean;
+  detectedMode?: FileMode;
+  hasFiles?: boolean;
 }
 
-export function DropZone({ onFilesAdded, activeTool, onBack, compact }: DropZoneProps) {
+export function DropZone({
+  onFilesAdded,
+  activeTool,
+  onBack,
+  onClearAll,
+  compact,
+  detectedMode,
+  hasFiles,
+}: DropZoneProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       onFilesAdded(acceptedFiles);
@@ -28,34 +47,75 @@ export function DropZone({ onFilesAdded, activeTool, onBack, compact }: DropZone
   });
 
   const rootProps = getRootProps();
+  const modeInfo = getModeInfo(detectedMode ?? null);
 
   return (
     <div>
-      {/* Back button + tool context */}
-      {activeTool && onBack && (
-        <motion.div
-          initial={{ opacity: 0, x: -8 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.3 }}
-          className="mb-4 flex items-center gap-3"
-        >
-          <button
-            onClick={onBack}
-            className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-95"
+      {/* Top bar: back + mode badge + clear */}
+      <AnimatePresence>
+        {(activeTool || hasFiles) && (
+          <motion.div
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+            className="mb-4 flex items-center justify-between"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            Tous les outils
-          </button>
-          <div className="flex items-center gap-2">
-            <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${activeTool.color}`}>
-              <activeTool.icon className={`h-3.5 w-3.5 ${activeTool.iconColor}`} />
+            <div className="flex items-center gap-3">
+              {onBack && (
+                <button
+                  onClick={onBack}
+                  className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-95"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  Tous les outils
+                </button>
+              )}
+
+              {/* Active tool label */}
+              {activeTool && (
+                <div className="flex items-center gap-2">
+                  <div className={`flex h-7 w-7 items-center justify-center rounded-lg ${activeTool.color}`}>
+                    <activeTool.icon className={`h-3.5 w-3.5 ${activeTool.iconColor}`} />
+                  </div>
+                  <span className="font-display text-sm font-bold text-foreground">
+                    {activeTool.label}
+                  </span>
+                </div>
+              )}
+
+              {/* Dynamic mode badge (when auto-detected, no active tool) */}
+              {!activeTool && detectedMode && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+                  className="flex items-center gap-2 rounded-full bg-primary/10 px-3.5 py-1.5"
+                >
+                  <span className="text-sm">{modeInfo.emoji}</span>
+                  <span className="text-xs font-bold text-primary">{modeInfo.label}</span>
+                  <span className="rounded-md bg-primary/15 px-1.5 py-0.5 text-[10px] font-semibold text-primary/80">
+                    {modeInfo.badge}
+                  </span>
+                </motion.div>
+              )}
             </div>
-            <span className="font-display text-sm font-bold text-foreground">
-              {activeTool.label}
-            </span>
-          </div>
-        </motion.div>
-      )}
+
+            {/* Clear all button — always visible when files present */}
+            {hasFiles && onClearAll && (
+              <motion.button
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onClick={onClearAll}
+                className="flex items-center gap-1.5 rounded-xl border border-destructive/20 bg-destructive/5 px-3 py-2 text-xs font-semibold text-destructive transition-all hover:bg-destructive/10 active:scale-95"
+              >
+                <Trash2 className="h-3 w-3" />
+                Tout effacer
+              </motion.button>
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -122,12 +182,32 @@ export function DropZone({ onFilesAdded, activeTool, onBack, compact }: DropZone
                 <p className="mt-1.5 text-sm text-muted-foreground text-pretty">
                   {activeTool
                     ? activeTool.desc
-                    : "ou cliquez pour parcourir"}
+                    : "PDF, Images, Audio, Vidéo, Documents — on détecte tout automatiquement"}
                 </p>
               </div>
-              <div className="flex items-center gap-1.5 text-xs text-primary/70">
-                <Zap className="h-3 w-3" fill="currentColor" />
-                <span>Traitement 100% local</span>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5 text-xs text-primary/70">
+                  <Zap className="h-3 w-3" fill="currentColor" />
+                  <span>Traitement 100% local</span>
+                </div>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        onClick={(e) => e.stopPropagation()}
+                        className="rounded-full p-1 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                      >
+                        <Info className="h-3 w-3" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="max-w-[260px] text-center">
+                      <p className="text-xs leading-relaxed">
+                        Analyse locale en cours… Votre CPU travaille pour vous. Aucune donnée envoyée à Kayzen ou à des tiers.
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
               </div>
             </motion.div>
           )}

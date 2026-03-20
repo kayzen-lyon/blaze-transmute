@@ -65,7 +65,7 @@ export function SecurityStatus({ hasFiles, isConverting, processingSpeed }: Secu
                     Traitement en cours dans votre RAM
                   </p>
                   <p className="text-[11px] text-muted-foreground">
-                    Aucun transfert serveur détecté
+                    Analyse locale en cours… Votre CPU travaille pour vous. Aucune donnée envoyée.
                   </p>
                 </div>
               </div>

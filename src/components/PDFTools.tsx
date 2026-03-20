@@ -29,11 +29,12 @@ interface PDFToolsProps {
   pdfFiles: File[];
   onClear: () => void;
   defaultAction?: PDFAction;
+  onAction?: () => void;
 }
 
 let pdfIdCounter = 0;
 
-export function PDFTools({ pdfFiles, onClear, defaultAction }: PDFToolsProps) {
+export function PDFTools({ pdfFiles, onClear, defaultAction, onAction }: PDFToolsProps) {
   const [action, setAction] = useState<PDFAction | null>(defaultAction ?? null);
   const [status, setStatus] = useState<PDFStatus>("idle");
   const [progress, setProgress] = useState(0);
@@ -73,6 +74,7 @@ export function PDFTools({ pdfFiles, onClear, defaultAction }: PDFToolsProps) {
   const executeAction = async (act: PDFAction, signatureData?: string) => {
     setStatus("processing");
     setProgress(0);
+    onAction?.();
 
     try {
       switch (act) {
