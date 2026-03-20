@@ -25,15 +25,15 @@ const plans = [
   },
   {
     name: "Pro",
-    price: "9,90€",
+    price: "49€",
     period: "/ mois",
-    desc: "Pour les professionnels qui traitent des documents sensibles.",
+    desc: "Pour les entreprises qui traitent des documents sensibles au quotidien.",
     icon: Crown,
     featured: true,
     cta: "Essai gratuit 14 jours",
     features: [
       { label: "Conversions illimitées", included: true },
-      { label: "Fichiers jusqu'à 500 Mo", included: true },
+      { label: "Fichiers jusqu'à 2 Go", included: true },
       { label: "Tous les outils média", included: true },
       { label: "Tous les outils PDF (32 outils)", included: true },
       { label: "Traitement 100% local", included: true },
@@ -41,17 +41,17 @@ const plans = [
       { label: "Signature + horodatage", included: true },
       { label: "Chiffrement AES-256", included: true },
       { label: "Conversion vidéo (FFmpeg.wasm)", included: true },
-      { label: "Support par email", included: true },
+      { label: "Support prioritaire par email", included: true },
     ],
   },
   {
     name: "Entreprise",
     price: "Sur devis",
     period: "",
-    desc: "Solution sur-mesure hébergée et personnalisée par l'agence Kayzen.",
+    desc: "Solution sur-mesure hébergée et personnalisée par l'agence Kayzen Web.",
     icon: Building2,
     featured: false,
-    cta: "Contacter Kayzen",
+    cta: "Contacter Kayzen Web",
     ctaLink: "https://internet.kayzen-lyon.fr",
     features: [
       { label: "Tout le plan Pro inclus", included: true },
@@ -70,7 +70,7 @@ const plans = [
 
 export function PricingSection() {
   return (
-    <section className="mt-24">
+    <section id="formules" className="mt-24 scroll-mt-20">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
