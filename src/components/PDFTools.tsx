@@ -29,6 +29,7 @@ interface PDFToolsProps {
   pdfFiles: File[];
   onClear: () => void;
   defaultAction?: PDFAction;
+  onAction?: () => void;
 }
 
 let pdfIdCounter = 0;
