@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { ArrowRight, Zap, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 import docusurLogo from "@/assets/docusur-logo.webp";
 
 export function Footer() {
