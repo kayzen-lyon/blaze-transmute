@@ -74,6 +74,7 @@ export function PDFTools({ pdfFiles, onClear, defaultAction, onAction }: PDFTool
   const executeAction = async (act: PDFAction, signatureData?: string) => {
     setStatus("processing");
     setProgress(0);
+    onAction?.();
 
     try {
       switch (act) {
