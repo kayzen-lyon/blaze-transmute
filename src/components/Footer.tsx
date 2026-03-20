@@ -46,7 +46,7 @@ export function Footer() {
           Besoin d'une solution sur-mesure pour automatiser vos processus documentaires ? Nous concevons des applications web pour les entreprises qui ne transigent pas sur la performance et la sécurité des données.
         </p>
         <a
-          href="https://www.kayzen-lyon.fr"
+          href="https://internet.kayzen-lyon.fr"
           target="_blank"
           rel="noopener noreferrer"
           className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-95"
@@ -70,7 +70,7 @@ export function Footer() {
           <span className="text-border">·</span>
           <span>Un outil</span>
           <a
-            href="https://www.kayzen-lyon.fr"
+            href="https://internet.kayzen-lyon.fr"
             target="_blank"
             rel="noopener noreferrer"
             className="font-semibold text-primary transition-colors hover:text-primary/80"
