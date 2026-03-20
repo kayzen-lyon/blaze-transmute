@@ -211,9 +211,9 @@ const Index = () => {
               className="text-balance font-display text-3xl font-bold text-foreground md:text-4xl"
               style={{ lineHeight: "1.1" }}
             >
-              Tous vos outils fichiers
+              Sécurité PDF Française
               <br />
-              <span className="text-primary">dans un seul endroit</span>
+              <span className="text-primary">& Conversion Zero-Server</span>
             </h1>
             <p className="mx-auto mt-4 max-w-lg text-pretty text-sm text-muted-foreground leading-relaxed">
               Déposez n'importe quel fichier — on détecte automatiquement le type et adapte les outils. Conversion média, PDF, OCR, signature — tout dans votre navigateur.
