@@ -1,15 +1,23 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { Header } from "@/components/Header";
 import { DropZone } from "@/components/DropZone";
 import { FileList, ConvertibleFile } from "@/components/FileList";
+import { SecurityStatus } from "@/components/SecurityStatus";
+import { WhySection } from "@/components/WhySection";
+import { Footer } from "@/components/Footer";
 import { ConversionFormat, convertFile } from "@/lib/ffmpeg";
-import { Shield, Zap, Globe, ArrowRight } from "lucide-react";
+import { Shield, Zap, Globe } from "lucide-react";
 
 let fileIdCounter = 0;
 
 const Index = () => {
   const [files, setFiles] = useState<ConvertibleFile[]>([]);
+  const [processingSpeed, setProcessingSpeed] = useState<number | null>(null);
+  const conversionStartRef = useRef<number>(0);
+  const fileSizeRef = useRef<number>(0);
+
+  const isConverting = files.some((f) => f.status === "converting");
 
   const handleFilesAdded = useCallback((newFiles: File[]) => {
     const items: ConvertibleFile[] = newFiles.map((file) => ({
@@ -45,12 +53,30 @@ const Index = () => {
     const item = currentFiles.find((f) => f.id === id);
     if (!item || !item.targetFormat) return;
 
+    conversionStartRef.current = performance.now();
+    fileSizeRef.current = item.file.size;
+    setProcessingSpeed(null);
+
     try {
       const result = await convertFile(item.file, item.targetFormat, (progress) => {
         setFiles((prev) =>
           prev.map((f) => (f.id === id ? { ...f, progress } : f))
         );
+
+        // Calculate processing speed
+        if (progress > 5 && progress < 100) {
+          const elapsed = (performance.now() - conversionStartRef.current) / 1000;
+          if (elapsed > 0.1) {
+            const processedBytes = (fileSizeRef.current * progress) / 100;
+            setProcessingSpeed(processedBytes / elapsed);
+          }
+        }
       });
+
+      const elapsed = (performance.now() - conversionStartRef.current) / 1000;
+      if (elapsed > 0) {
+        setProcessingSpeed(fileSizeRef.current / elapsed);
+      }
 
       setFiles((prev) =>
         prev.map((f) =>
@@ -101,7 +127,7 @@ const Index = () => {
       <div className="relative z-10">
         <Header />
 
-        <main className="mx-auto max-w-2xl px-6 pb-24 pt-8 md:pt-16">
+        <main className="mx-auto max-w-2xl px-6 pb-8 pt-8 md:pt-16">
           {/* Hero */}
           <motion.div
             initial={{ opacity: 0, y: 20, filter: "blur(6px)" }}
@@ -127,9 +153,16 @@ const Index = () => {
           {/* Drop zone */}
           <DropZone onFilesAdded={handleFilesAdded} />
 
+          {/* Security Status */}
+          <SecurityStatus
+            hasFiles={files.length > 0}
+            isConverting={isConverting}
+            processingSpeed={processingSpeed}
+          />
+
           {/* File list */}
           {files.length > 0 && (
-            <div className="mt-6">
+            <div className="mt-5">
               <FileList
                 files={files}
                 onRemove={handleRemove}
@@ -172,26 +205,11 @@ const Index = () => {
             </motion.div>
           )}
 
-          {/* CTA Kayzen */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.7 }}
-            className="mt-20 text-center"
-          >
-            <p className="text-sm text-muted-foreground">
-              Besoin d'un site aussi rapide que ce convertisseur ?
-            </p>
-            <a
-              href="https://kayzen-lyon.fr"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-primary transition-colors hover:text-primary/80"
-            >
-              Découvrir Kayzen
-              <ArrowRight className="h-3.5 w-3.5" />
-            </a>
-          </motion.div>
+          {/* Why Section */}
+          <WhySection />
+
+          {/* Footer */}
+          <Footer />
         </main>
       </div>
     </div>
