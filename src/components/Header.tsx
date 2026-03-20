@@ -32,7 +32,7 @@ export function Header({ onSelectTool }: HeaderProps) {
   const megaRef = useRef<HTMLDivElement>(null);
 
   const mediaTools = ALL_TOOLS.filter((t) => t.category === "media");
-  const pdfTools = ALL_TOOLS.filter((t) => t.category === "pdf");
+  const pdfTools = ALL_TOOLS.filter((t) => t.category.startsWith("pdf-"));
 
   // Close mega-menu on outside click
   useEffect(() => {
