@@ -155,7 +155,7 @@ export async function ocrPDF(
     const [page] = await singleDoc.copyPages(pdfDoc, [i]);
     singleDoc.addPage(page);
     const singleBytes = await singleDoc.save();
-    const singleBlob = new Blob([singleBytes], { type: "application/pdf" });
+    const singleBlob = new Blob([singleBytes as unknown as ArrayBuffer], { type: "application/pdf" });
 
     try {
       const result = await worker.recognize(singleBlob);
