@@ -21,7 +21,7 @@ export async function mergePDFs(
   onProgress?.(95);
   const mergedBytes = await mergedDoc.save();
   onProgress?.(100);
-  return new Blob([mergedBytes], { type: "application/pdf" });
+  return new Blob([mergedBytes as unknown as ArrayBuffer], { type: "application/pdf" });
 }
 
 /**
