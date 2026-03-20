@@ -75,7 +75,7 @@ export function Footer() {
             rel="noopener noreferrer"
             className="font-semibold text-primary transition-colors hover:text-primary/80"
           >
-            Kayzen Lyon
+            Kayzen Web
           </a>
         </div>
         <p className="text-[11px] text-muted-foreground/60">
