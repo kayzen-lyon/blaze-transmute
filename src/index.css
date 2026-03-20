@@ -7,50 +7,50 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222 47% 5%;
+    --foreground: 220 30% 10%;
 
     --card: 220 14% 96%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 220 30% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 220 30% 10%;
 
-    --primary: 24 100% 35%;
+    --primary: 215 80% 48%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
+    --secondary-foreground: 220 30% 10%;
 
     --muted: 220 14% 96%;
-    --muted-foreground: 215 20% 30%;
+    --muted-foreground: 215 16% 47%;
 
-    --accent: 116 18% 35%;
+    --accent: 215 80% 48%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 220 13% 91%;
     --input: 220 13% 91%;
-    --ring: 24 100% 35%;
+    --ring: 215 80% 48%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 24 100% 35%;
+    --sidebar-foreground: 220 30% 10%;
+    --sidebar-primary: 215 80% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-accent-foreground: 220 30% 10%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 24 100% 35%;
+    --sidebar-ring: 215 80% 48%;
 
-    --kayzen-green: 116 15% 38%;
-    --kayzen-glow: 24 100% 35%;
+    --kayzen-green: 145 45% 42%;
+    --kayzen-glow: 215 80% 48%;
     --surface-elevated: 220 14% 96%;
     --surface-glass: 220 14% 96%;
-    --dropzone-bg: 24 40% 97%;
-    --dropzone-border: 24 30% 82%;
+    --dropzone-bg: 215 40% 97%;
+    --dropzone-border: 215 30% 82%;
   }
 
   .dark {
