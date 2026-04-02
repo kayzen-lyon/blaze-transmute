@@ -80,6 +80,13 @@ export function Header({ onSelectTool }: HeaderProps) {
           </button>
 
           <Link
+            to="/outils"
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground active:scale-95"
+          >
+            Outils
+          </Link>
+
+          <Link
             to="/tarifs"
             className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground active:scale-95"
           >
@@ -91,6 +98,13 @@ export function Header({ onSelectTool }: HeaderProps) {
             className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground active:scale-95"
           >
             Sécurité
+          </Link>
+
+          <Link
+            to="/a-propos"
+            className="flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold text-muted-foreground transition-all hover:bg-secondary hover:text-foreground active:scale-95"
+          >
+            À propos
           </Link>
 
           <div className="flex items-center gap-1 rounded-full border border-kayzen-green/20 bg-kayzen-green/8 px-2.5 py-1">
