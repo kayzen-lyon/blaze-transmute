@@ -926,3 +926,6 @@ const analyzeStructure: ProcessorFn = async (files, onProgress) => {
     message: `__ANALYSIS_JSON__${JSON.stringify(analysisResult)}`
   };
 };
+
+// Add analyse-structure to registry
+processors['analyse-structure'] = analyzeStructure;
