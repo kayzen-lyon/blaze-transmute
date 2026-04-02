@@ -844,7 +844,6 @@ export const processors: Record<string, ProcessorFn> = {
   numeriser: scanToPdf,
   ocr: ocrPdf,
   comparer: comparePdfs,
-  'analyse-structure': analyzeStructure,
 };
 
 // ==================== ANALYSIS ====================
